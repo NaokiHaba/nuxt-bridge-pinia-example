@@ -12,7 +12,10 @@ export default {
       userInfo: (state) => {
         return state.userInfo
       }
-    })
+    }),
+    isSSR() {
+      return process.server
+    }
   }
 };
 </script>
@@ -20,7 +23,8 @@ export default {
 <template>
   <div>
     <h1>ユーザー詳細</h1>
-    {{ userInfo}}
+    <p>現在のレンダリング方式: {{ isSSR ? 'SSR' : 'CSR' }}</p>
+    {{ userInfo }}
   </div>
 
 </template>

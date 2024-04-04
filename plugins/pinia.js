@@ -16,15 +16,15 @@ export default (context, provide) => {
     Object.defineProperty(store, '$nuxt', { value: context })
   })
 
-  // if (process.server) {
-  //   // nuxtServerInitの後にSSRの結果をフロントと同期（Nuxt3では不要）
-  //   // レンダリング前にPiniaの状態をnuxtStateオブジェクトに保存しないと自動では同期されない
-  //   context.beforeNuxtRender((ctx) => {
-  //     ctx.nuxtState.pinia = pinia.state.value
-  //   })
-  // } else if (context.nuxtState && context.nuxtState.pinia) {
-  //   pinia.state.value = context.nuxtState.pinia
-  // }
+  if (process.server) {
+    // nuxtServerInitの後にSSRの結果をフロントと同期（Nuxt3では不要）
+    // レンダリング前にPiniaの状態をnuxtStateオブジェクトに保存しないと自動では同期されない
+    context.beforeNuxtRender((ctx) => {
+      ctx.nuxtState.pinia = pinia.state.value
+    })
+  } else if (context.nuxtState && context.nuxtState.pinia) {
+    pinia.state.value = context.nuxtState.pinia
+  }
 
   provide('pinia', pinia)
 }

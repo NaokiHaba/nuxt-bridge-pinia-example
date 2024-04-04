@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from "@nuxt/bridge"
+import { createRouter } from "./router"
 
 export default defineNuxtConfig({
   bridge: false,
@@ -23,21 +24,22 @@ export default defineNuxtConfig({
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [ '@/plugins/pinia' ],
+  plugins: [
+    '~/plugins/pinia.js'
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
-    '@pinia/nuxt',
-    [ '@pinia/nuxt', { disableVuex: true } ]
-
+    '@pinia/nuxt'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@pinia/nuxt'
   ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
@@ -49,6 +51,14 @@ export default defineNuxtConfig({
         type: 'javascript/auto'
       })
     }
+  },
+  axios: {
+    baseURL: 'https://jsonplaceholder.typicode.com/',
+    browserBaseURL: 'https://jsonplaceholder.typicode.com/'
+  },
+  router: {
+    mode: 'history',
   }
+
 })
 

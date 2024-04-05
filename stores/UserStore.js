@@ -8,7 +8,7 @@ export const useUserStore = defineStore(
     }),
     actions: {
       async fetchUserByID() {
-        const res = await this.$nuxt.$axios.$get("/users/1")
+        const res = await this.$nuxtAxios.$get("/users/1")
         this.$patch({ userInfo: res })
       }
     }

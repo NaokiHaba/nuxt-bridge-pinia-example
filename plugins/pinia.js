@@ -1,30 +1,37 @@
 import { createPinia, PiniaVuePlugin, setActivePinia } from 'pinia'
+import { defineNuxtPlugin } from '@nuxtjs/composition-api'
 import Vue from 'vue'
 
+// PiniaをVueDevToolsと統合するためにPiniaVuePluginを使用
 Vue.use(PiniaVuePlugin)
 
-export default (context, provide) => {
+export default defineNuxtPlugin((nuxtApp) => {
   const pinia = createPinia()
-  context.app.pinia = pinia
 
-  // 複数のStoreがそれぞれのStoreに適切に紐づくようにする
+  // Vue2ではapp.useが使えないため、app.piniaにPiniaを設定
+  nuxtApp.app.pinia = pinia
+
+  // ActivePiniaを設定
   setActivePinia(pinia)
 
-  // HACK: デフォルトはPiniaは自身のStoreインスタンスのみを参照するため、Piniaの内部プラグインに対してNuxtのコンテキストを渡す
-  // https://github.com/vuejs/pinia/blob/v2/packages/pinia/src/store.ts#L698
+  // Piniaの内部プラグインStoreにnuxt/$axiosを渡す
   pinia._p.push(({ store }) => {
-    Object.defineProperty(store, '$nuxt', { value: context })
+    Object.defineProperty(store, '$nuxtAxios', { value: nuxtApp.app.$axios })
   })
 
   if (process.server) {
-    // nuxtServerInitの後にSSRの結果をフロントと同期（Nuxt3では不要）
-    // レンダリング前にPiniaの状態をnuxtStateオブジェクトに保存しないと自動では同期されない
-    context.beforeNuxtRender((ctx) => {
+    // サーバー側でPiniaの状態をnuxtStateオブジェクトに保存
+    nuxtApp.beforeNuxtRender((ctx) => {
       ctx.nuxtState.pinia = pinia.state.value
     })
-  } else if (context.nuxtState && context.nuxtState.pinia) {
-    pinia.state.value = context.nuxtState.pinia
+  } else if (nuxtApp.nuxtState && nuxtApp.nuxtState.pinia) {
+    // クライアント側でPiniaの状態を復元
+    pinia.state.value = nuxtApp.nuxtState.pinia
   }
 
-  provide('pinia', pinia)
-}
+  return {
+    provide: {
+      pinia
+    }
+  }
+})
